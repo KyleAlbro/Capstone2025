@@ -64,3 +64,25 @@ footer h2 {
 footer p {
     font-size: 16px;
 }
+
+.split {
+    display: flex;
+    height: calc(100vh - 275px); 
+}
+
+.left, .right {
+    flex: 1; 
+    display: flex;
+    align-items: center;
+    justify-content: center; 
+}
+
+.left img {
+    width: 50%;
+    height: auto;
+    object-fit: cover;
+}
+
+.right {
+    padding: 10px; 
+}
