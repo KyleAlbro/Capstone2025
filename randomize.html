@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<!-- API KEY: AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k-->
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What's for Dinner</title>
     <link rel="stylesheet" href="styles.css">
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&callback=console.debug&libraries=maps,marker&v=beta">
+    </script>
 </head>
 
 <body>
@@ -20,7 +25,14 @@
     <div class="content">
         <div class="split">
             <div class="left-ran">
-                <img class="map" src="mapPlaceholder.jpg" alt="Map Placeholder Image">
+                <!--<img class="map" src="mapPlaceholder.jpg" alt="Map Placeholder Image">-->
+                <iframe class="map" width="600" height="450" style="border:0" loading="lazy" allowfullscreen
+                    referrerpolicy="no-referrer-when-downgrade"
+                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&q=47.5062,-111.3008">
+                </iframe>
+                <div class="button-container">
+                    <button class="button">Randomize!</button>                
+                </div>
             </div>
 
             <div class="right-ran">
