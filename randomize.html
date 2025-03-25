@@ -10,7 +10,10 @@
     <link rel="stylesheet" href="styles.css">
     <script async
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&callback=console.debug&libraries=maps,marker&v=beta">
-    </script>
+        </script>
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&loading=async&libraries=places&callback=initMap">
+        </script>
 </head>
 
 <body>
@@ -25,13 +28,12 @@
     <div class="content">
         <div class="split">
             <div class="left-ran">
-                <!--<img class="map" src="mapPlaceholder.jpg" alt="Map Placeholder Image">-->
+                <!--class=map keeps it in the same area the placeholder image was sitting-->
                 <iframe class="map" width="600" height="450" style="border:0" loading="lazy" allowfullscreen
-                    referrerpolicy="no-referrer-when-downgrade"
-                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&q=47.5062,-111.3008">
+                    referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/embed/v1/search?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&q=restaurants+in+Great+Falls+MT">
                 </iframe>
                 <div class="button-container">
-                    <button class="button">Randomize!</button>                
+                    <button class="button">Randomize!</button>
                 </div>
             </div>
 
