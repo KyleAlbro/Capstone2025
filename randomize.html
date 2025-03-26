@@ -1,18 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<!-- API KEY: AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k-->
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What's for Dinner</title>
     <link rel="stylesheet" href="styles.css">
+
     <script async
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&callback=console.debug&libraries=maps,marker&v=beta">
-        </script>
-    <script async
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&loading=async&libraries=places&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&libraries=places&callback=initMap">
         </script>
 </head>
 
@@ -28,25 +24,19 @@
     <div class="content">
         <div class="split">
             <div class="left-ran">
-                <!--class=map keeps it in the same area the placeholder image was sitting-->
-                <iframe class="map" width="600" height="450" style="border:0" loading="lazy" allowfullscreen
-                    referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps/embed/v1/search?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&q=restaurants+in+Great+Falls+MT">
-                </iframe>
+                <div id="map"></div>
+
                 <div class="button-container">
-                    <button class="button">Randomize!</button>
+                    <button class="button " id="randomButton" onclick="pickRandomRestaurant()"
+                        disabled>Randomize!</button>
                 </div>
             </div>
 
             <div class="right-ran">
-                <p>
-                    RESTAURANT NAME
-                </p>
-                <p>
-                    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                    Quibusdam id provident magni, error est,
-                    molestias accusantium doloribus quo laborum eius eaque rem assumenda numquam ipsa optio
-                    reprehenderit
-                    delectus atque repellendus?
+                <!--the ids allows those to be changed using the script-->
+                <p id="restaurant-name">Restaurant name</p>
+                <p id="restaurant-info">
+                    Click "Randomize!" to pick a restaurant. Please wait a second while the API loads.
                 </p>
             </div>
         </div>
@@ -56,6 +46,120 @@
         <h2>Contact me</h2>
         <p>Kyle Albro | (406) 781 - 9804 | kylealbro@charter.net</p>
     </footer>
+
+    <script>
+        let map;
+        let service;
+        let markers = [];
+        let restaurants = [];
+        let button = document.getElementById("randomButton");
+
+        //dynamic map
+        function initMap() {
+            //variable for greatfalls latitude and longitude
+            const greatFalls = { lat: 47.5062, lng: -111.3008 };
+
+            //creating the map with great falls centered
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: greatFalls,
+                zoom: 13,
+            });
+
+            service = new google.maps.places.PlacesService(map);
+
+            let allRestaurants = []; 
+            let request = {
+                location: greatFalls,
+                radius: 5000,
+                type: "restaurant",
+            };
+
+            //finding restaurants in the great falls area, change to use users location instead of defaulting to great falls
+            function fetchMoreResults(results, status, pagination) {
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                    results.forEach(place => {
+                        const types = place.types || [];
+                        if (
+                            types.includes("restaurant") &&
+                            !types.includes("gas_station") &&
+                            !types.includes("convenience_store") &&
+                            !types.includes("supermarket")
+                        ) {
+                            allRestaurants.push(place);
+                        }
+                    });
+
+                    if (pagination && pagination.hasNextPage) {
+                        pagination.nextPage();
+                    } else {
+                        restaurants = allRestaurants;
+
+                        if (restaurants.length === 0) {
+                            alert("No restaurants found. Try again later.");
+                        } else {
+                            document.getElementById("randomButton").disabled = false; 
+                        }
+                    }
+                } else {
+                    console.error("Error fetching restaurants:", status);
+                }
+            }
+            //exists to find more restaurants before this was not finding all the restaurants
+            service.nearbySearch(request, fetchMoreResults);
+        }
+
+        function pickRandomRestaurant() {
+            if (restaurants.length === 0) {
+                alert("Still loading restaurants. Please wait.");
+                return;
+            }
+
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+
+            const randomIndex = Math.floor(Math.random() * restaurants.length);
+            const place = restaurants[randomIndex];
+
+            //creating a marker
+            const marker = new google.maps.Marker({
+                map,
+                position: place.geometry.location,
+                title: place.name,
+                animation: google.maps.Animation.DROP,
+            });
+
+            markers.push(marker);
+
+            const infowindow = new google.maps.InfoWindow({
+                content: `<strong>${place.name}</strong><br>Rating: ${place.rating || "N/A"}`,
+            });
+
+            marker.addListener("click", () => {
+                infowindow.open(map, marker);
+            });
+
+            infowindow.open(map, marker);
+
+            //displaying restaurant information want to change the types to be more legible instead of it being more like code
+            document.getElementById("restaurant-name").innerText = place.name;
+            document.getElementById("restaurant-name").style.fontSize = "32px";
+            document.getElementById("restaurant-info").innerHTML = `
+                <strong>Rating:</strong> ${place.rating || "N/A"} stars <br>
+                <strong>Address:</strong> ${place.vicinity || "No address available"}<br>
+                <strong>Type:</strong> ${place.types ? place.types.join(", ") : "Restaurant"}
+            `;
+
+            map.setCenter(place.geometry.location);
+            map.setZoom(15);
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            if (typeof google !== "undefined" && google.maps) {
+                initMap();
+            } else {
+                console.error("Google Maps API failed to load.");
+            }
+        });
+    </script>
 
 </body>
 

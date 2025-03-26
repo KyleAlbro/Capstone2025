@@ -93,6 +93,12 @@ footer p {
     object-fit: cover;
 }
 
+#map {
+    width: 600px;
+    height: 450px;
+    border: 0;
+}
+
 /* #endregion */
 
 /* #region restaurant page */
@@ -136,6 +142,7 @@ footer p {
 /* #endregion*/
 
 /* #region button */
+
 .button-container {
     display: flex;
     justify-content: center;
