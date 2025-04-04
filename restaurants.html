@@ -47,13 +47,13 @@
 
         // This loads all restaurants using user location or default location of Missoula, MT
         function initRestaurants() {
-            loadRestaurants(); // Start by loading restaurants for Missoula
+            loadRestaurants(); 
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
-                    // Change location to Great Falls when geolocation permission is granted
+                    // Change location to userlocation
                     testLocation = userLocation;
-                    loadRestaurants(); // Reload restaurants for Great Falls
+                    loadRestaurants(); 
                 }, () => {
                     console.warn("Geolocation permission denied. Using default location.");
                 });
@@ -65,7 +65,7 @@
         function loadRestaurants() {
             // Clear previous results
             const container = document.getElementById("restaurants-container");
-            container.innerHTML = "<p>Loading restaurants...</p>"; // Optional: A loading text message
+            container.innerHTML = "<p>Loading restaurants...</p>"; 
 
             // Recreate the map and service with the new location
             map = new google.maps.Map(document.createElement("div"), { center: testLocation, zoom: 14 });
