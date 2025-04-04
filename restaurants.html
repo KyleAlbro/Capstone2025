@@ -6,7 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What's for Dinner</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&libraries=places"></script>
+    <script
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&libraries=places"></script>
 </head>
 
 <!--
@@ -28,7 +29,7 @@
         <a href="restaurants.html">Restaurants</a>
     </div>
 
-    
+
     <div id="restaurants-container">
         <p>Loading restaurants...</p>
     </div>
@@ -41,36 +42,44 @@
     <script>
         let allRestaurants = [];
         let map, service;
-        let userLocation = { lat: 47.5062, lng: -111.2837 }; //the lat and lng are for great falls mt if the user doesnt allow for the website to use their location
+        let testLocation = { lat: 46.8721, lng: -113.9940 }; // Missoula, Montana as the default location
+        let userLocation = { lat: 47.5062, lng: -111.2837 }; // Great Falls, Montana for after permission
 
-        //this loads all restaurants using user location or default location of great falls mt
+        // This loads all restaurants using user location or default location of Missoula, MT
         function initRestaurants() {
+            loadRestaurants(); // Start by loading restaurants for Missoula
+
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
-                    userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
-                    loadRestaurants();
+                    // Change location to Great Falls when geolocation permission is granted
+                    testLocation = userLocation;
+                    loadRestaurants(); // Reload restaurants for Great Falls
                 }, () => {
                     console.warn("Geolocation permission denied. Using default location.");
-                    loadRestaurants();
                 });
             } else {
                 console.warn("Geolocation not supported. Using default location.");
-                loadRestaurants();
             }
         }
 
         function loadRestaurants() {
-            map = new google.maps.Map(document.createElement("div"), { center: userLocation, zoom: 14 });
+            // Clear previous results
+            const container = document.getElementById("restaurants-container");
+            container.innerHTML = "<p>Loading restaurants...</p>"; // Optional: A loading text message
+
+            // Recreate the map and service with the new location
+            map = new google.maps.Map(document.createElement("div"), { center: testLocation, zoom: 14 });
             service = new google.maps.places.PlacesService(map);
 
+            // Use the current testLocation to search for restaurants
             service.nearbySearch({
-                location: userLocation,
-                radius: 5000, 
+                location: testLocation,
+                radius: 5000,
                 type: "restaurant"
             }, fetchMoreResults);
         }
 
-        //get more results just like randomize page
+        // Get more results just like randomize page
         function fetchMoreResults(results, status, pagination) {
             if (status === google.maps.places.PlacesServiceStatus.OK) {
                 results.forEach(place => {
@@ -94,11 +103,11 @@
             }
         }
 
-        //this gets all details about a restaurant. name, address, photos, types, and reviews.
+        // This gets all details about a restaurant: name, address, photos, types, and reviews.
         function getRestaurantDetails(place) {
-            service.getDetails({ 
-                placeId: place.place_id, 
-                fields: ["name", "formatted_address", "photos", "types", "reviews"] 
+            service.getDetails({
+                placeId: place.place_id,
+                fields: ["name", "formatted_address", "photos", "types", "reviews"]
             }, (details, status) => {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     displayRestaurant(details);
@@ -106,45 +115,48 @@
             });
         }
 
-        //this is used to display the details on the page. currently only using name, address, and images
+        // This is used to display the details on the page. Currently, only using name, address, and images
         function displayRestaurant(details) {
             const container = document.getElementById("restaurants-container");
             const div = document.createElement("div");
             div.classList.add("content-res");
 
-            // get restaurant image
+            // Get restaurant image
             let photoUrl = details.photos ? details.photos[0].getUrl({ maxWidth: 400 }) : "mapPlaceholder.jpg";
 
-            // get restaurant type
+            // Get restaurant type
             let restaurantTypes = details.types
-                .filter(type => type !== "restaurant") 
-                .map(type => type.replace(/_/g, " ")) 
+                .filter(type => type !== "restaurant")
+                .map(type => type.replace(/_/g, " "))
                 .join(", ");
 
-            // get restaurant address
+            // Get restaurant address
             let address = details.formatted_address || "No address available.";
 
-            //displaying the name and address of restaurant
+            // Displaying the name and address of the restaurant
             div.innerHTML = `
-                <div class="split-res">
-                    <div class="left-res">
-                        <img src="${photoUrl}" alt="${details.name}">
-                    </div>
-                    <div class="right-res">
-                        <p>
-                            <strong>${details.name}</strong><br>
-                            <small>${address}</small><br><br>                          
-                        </p>
-                    </div>
-                </div>
-                <div class="line"></div>
-            `;
+        <div class="split-res">
+            <div class="left-res">
+                <img src="${photoUrl}" alt="${details.name}">
+            </div>
+            <div class="right-res">
+                <p>
+                    <strong>${details.name}</strong><br>
+                    <small>${address}</small><br><br>                          
+                </p>
+            </div>
+        </div>
+        <div class="line"></div>
+    `;
 
             container.appendChild(div);
         }
 
         window.onload = initRestaurants;
+
+
     </script>
 
 </body>
+
 </html>
