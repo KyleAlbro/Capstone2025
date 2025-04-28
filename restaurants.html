@@ -43,7 +43,7 @@
         let allRestaurants = [];
         let map, service;
         let testLocation = { lat: 46.8721, lng: -113.9940 }; // Missoula, Montana as the default location
-        let userLocation = { lat: 47.5062, lng: -111.2837 }; // Great Falls, Montana for after permission
+        //let userLocation = { lat: 47.5062, lng: -111.2837 }; // Great Falls, Montana for after permission
 
         // This loads all restaurants using user location or default location of Missoula, MT
         function initRestaurants() {
@@ -52,7 +52,10 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
                     // Change location to userlocation
-                    testLocation = userLocation;
+                    testLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
                     loadRestaurants(); 
                 }, () => {
                     console.warn("Geolocation permission denied. Using default location.");
@@ -151,10 +154,7 @@
 
             container.appendChild(div);
         }
-
         window.onload = initRestaurants;
-
-
     </script>
 
 </body>

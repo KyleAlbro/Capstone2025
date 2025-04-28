@@ -9,7 +9,7 @@
 
     <script async
         src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAUvtEw0xEFV7cNeyiWIOq3ywkAOP0X29k&libraries=places&callback=initMap">
-    </script>
+        </script>
 </head>
 
 <body>
@@ -54,27 +54,24 @@
         let restaurants = [];
         let button = document.getElementById("randomButton");
 
-        //dynamic map
-        function initMap() {
-            //variable for greatfalls latitude and longitude
-            const greatFalls = { lat: 47.5062, lng: -111.3008 };
+        function initMapWithLocation(userLocation) {
+            restaurants = []; // This clears the old results
+            document.getElementById("randomButton").disabled = true; // Disables button before new results load
 
-            //creating the map with great falls centered
+            //Centers on user location
             map = new google.maps.Map(document.getElementById("map"), {
-                center: greatFalls,
+                center: userLocation,
                 zoom: 13,
             });
 
             service = new google.maps.places.PlacesService(map);
 
-            let allRestaurants = []; 
+            let allRestaurants = [];
             let request = {
-                location: greatFalls,
+                location: userLocation,
                 radius: 5000,
                 type: "restaurant",
             };
-
-            //finding restaurants in the great falls area, change to use users location instead of defaulting to great falls
             function fetchMoreResults(results, status, pagination) {
                 if (status === google.maps.places.PlacesServiceStatus.OK) {
                     results.forEach(place => {
@@ -97,15 +94,37 @@
                         if (restaurants.length === 0) {
                             alert("No restaurants found. Try again later.");
                         } else {
-                            document.getElementById("randomButton").disabled = false; 
+                            document.getElementById("randomButton").disabled = false;
                         }
                     }
                 } else {
                     console.error("Error fetching restaurants:", status);
                 }
             }
-            //exists to find more restaurants before this was not finding all the restaurants
+
             service.nearbySearch(request, fetchMoreResults);
+        }
+
+        function initMap() {
+            const defaultLocation = { lat: 46.8721, lng: -113.9940 }; // Missoula
+
+            // Load map with Missoula initially
+            initMapWithLocation(defaultLocation);
+
+            // Try to get user's actual location and re-initialize if permission granted
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    initMapWithLocation(userLocation);
+                }, () => {
+                    console.warn("Geolocation permission denied. Using default location.");
+                });
+            } else {
+                console.warn("Geolocation not supported. Using default location.");
+            }
         }
 
         function pickRandomRestaurant() {
@@ -120,7 +139,6 @@
             const randomIndex = Math.floor(Math.random() * restaurants.length);
             const place = restaurants[randomIndex];
 
-            //creating a marker
             const marker = new google.maps.Marker({
                 map,
                 position: place.geometry.location,
@@ -140,7 +158,6 @@
 
             infowindow.open(map, marker);
 
-            //displaying restaurant information want to change the types to be more legible instead of it being more like code
             document.getElementById("restaurant-name").innerText = place.name;
             document.getElementById("restaurant-name").style.fontSize = "32px";
             document.getElementById("restaurant-info").innerHTML = `
@@ -152,6 +169,7 @@
             map.setCenter(place.geometry.location);
             map.setZoom(15);
         }
+
         document.addEventListener("DOMContentLoaded", function () {
             if (typeof google !== "undefined" && google.maps) {
                 initMap();
